@@ -1,39 +1,51 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 const app = express();
 
-// ✅ Restrict CORS to only your Netlify frontend
+// ✅ Restrict CORS to only your Netlify frontend and local dev
 app.use(cors({
-  origin: 'https://spontaneous-tiramisu-59dd23.netlify.app'
+  origin: [
+    'http://127.0.0.1:5500',
+    'https://spontaneous-tiramisu-59dd23.netlify.app'
+  ]
 }));
 
 app.use(express.json());
 
-// In-memory storage for portfolios
+// ✅ Serve uploaded files statically
+app.use("/uploads", express.static("uploads"));
+
+// ✅ File upload route
+const resumeRoute = require("./routes/resume");
+app.use("/api/resume", resumeRoute);
+
+// ✅ Portfolio save/load route (in-memory)
 const portfolios = {};
-
-// ✅ POST: Save portfolio by ID
-app.post('/api/portfolio', (req, res) => {
+app.post("/api/portfolio", (req, res) => {
   const { id, data } = req.body;
-
   if (!id || !data) {
-    return res.status(400).json({ error: 'ID and data are required' });
+    return res.status(400).json({ error: "ID and data are required" });
   }
-
   portfolios[id] = data;
-  res.json({ message: 'Portfolio saved successfully' });
+  res.json({ message: "Portfolio saved successfully" });
 });
 
-// ✅ GET: Retrieve portfolio by ID
-app.get('/api/portfolio/:id', (req, res) => {
+app.get("/api/portfolio/:id", (req, res) => {
   const id = req.params.id;
   const portfolio = portfolios[id];
-
   if (!portfolio) {
-    return res.status(404).json({ error: 'Portfolio not found' });
+    return res.status(404).json({ error: "Portfolio not found" });
   }
-
   res.json(portfolio);
+});
+
+// ✅ Hello test route
+const helloRoute = require("./routes/hello");
+app.use("/hello", helloRoute);
+
+// ✅ Default test route
+app.get("/", (req, res) => {
+  res.send("Welcome to Express Backend!");
 });
 
 // ✅ Start the server
