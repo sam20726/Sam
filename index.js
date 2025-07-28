@@ -2,13 +2,17 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(cors());
+// ✅ Restrict CORS to only your Netlify frontend
+app.use(cors({
+  origin: 'https://spontaneous-tiramisu-59dd23.netlify.app'
+}));
+
 app.use(express.json());
 
 // In-memory storage for portfolios
 const portfolios = {};
 
-// POST: Save portfolio
+// ✅ POST: Save portfolio by ID
 app.post('/api/portfolio', (req, res) => {
   const { id, data } = req.body;
 
@@ -20,7 +24,7 @@ app.post('/api/portfolio', (req, res) => {
   res.json({ message: 'Portfolio saved successfully' });
 });
 
-// GET: Retrieve portfolio
+// ✅ GET: Retrieve portfolio by ID
 app.get('/api/portfolio/:id', (req, res) => {
   const id = req.params.id;
   const portfolio = portfolios[id];
@@ -32,7 +36,7 @@ app.get('/api/portfolio/:id', (req, res) => {
   res.json(portfolio);
 });
 
-// Start the server
+// ✅ Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
